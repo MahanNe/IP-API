@@ -9,32 +9,36 @@ app.set('trust proxy', true);
 app.use(cors());
 
 app.get('/app', (req, res) => {
+    // Get the IP address of the client
     const ipString = req.headers['x-forwarded-for'] || req.ip;
-    const ipNumeric = ipString.split('.').reduce((acc, octet, index) => acc + Number(octet) * Math.pow(256, 3 - index), 0);
     const ipType = ipString.includes(':') ? 'IPv6' : 'IPv4';
     const isBehindProxy = req.headers['x-forwarded-for'] ? true : false;
 
+    // Parse user agent string
     const userAgent = useragent.parse(req.headers['user-agent']);
 
+    // Determine the device type
+    let device;
+    if (userAgent.isDesktop) {
+        device = 'Desktop';
+    } else if (userAgent.isMobile) {
+        device = 'Mobile';
+    } else if (userAgent.isTablet) {
+        device = 'Tablet';
+    } else {
+        device = 'Other';
+    }
+
+    // Construct response object
     const responseObject = {
         ipString: ipString,
-        ipNumeric: ipNumeric,
         ipType: ipType,
+        device: device,
         isBehindProxy: isBehindProxy,
-        device: userAgent.device.toString(),
-        os: userAgent.os.toString(),
-        userAgent: userAgent.toString(),
-        family: userAgent.family,
-        versionMajor: userAgent.major,
-        versionMinor: userAgent.minor,
-        versionPatch: userAgent.patch,
-        isSpider: userAgent.isSpider,
-        isMobile: userAgent.isMobile,
-        userAgentDisplay: userAgent.toAgent(),
-        userAgentRaw: req.headers['user-agent'],
-        userLanguages: req.headers['accept-language'].split(',')
+        browser: userAgent.family,
     };
 
+    // Send the response
     res.json(responseObject);
 });
 

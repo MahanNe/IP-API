@@ -18,19 +18,25 @@ app.get('/app', (req, res) => {
     const userAgentString = req.headers['user-agent'];
     const userAgent = useragent.parse(userAgentString);
 
-    // Determine the browser information
-    const browser = userAgent.family || 'Unknown';
-
-    // Check if the client is likely using a VPN
-    const isUsingVPN = isBehindProxy && !userAgent.device.toString().toLowerCase().includes('vpn');
+    // Determine the device type
+    let device;
+    if (userAgent.isDesktop) {
+        device = 'Desktop';
+    } else if (userAgent.isMobile) {
+        device = 'Mobile';
+    } else if (userAgent.isTablet) {
+        device = 'Tablet';
+    } else {
+        device = 'Other';
+    }
 
     // Construct response object
     const responseObject = {
         ipString: ipString,
         ipType: ipType,
-        browser: browser,
+        device: device,
         isBehindProxy: isBehindProxy,
-        isUsingVPN: isUsingVPN
+        browser: userAgent.family,
     };
 
     // Send the response

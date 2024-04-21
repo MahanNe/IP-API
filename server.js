@@ -8,7 +8,8 @@ const port = process.env.PORT || 3000;
 app.set('trust proxy', true);
 app.use(cors());
 
-app.get('/app', (req, res) => {
+// Define a route for serving JSON data at the root URL
+app.get('/', (req, res) => {
     // Get the IP address of the client
     const ipString = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
     const ipType = ipString.includes(':') ? 'IPv6' : 'IPv4';
@@ -39,10 +40,11 @@ app.get('/app', (req, res) => {
         browser: userAgent.family,
     };
 
-    // Send the response
+    // Send the response as JSON
     res.json(responseObject);
 });
 
+// Start the server
 app.listen(port, () => {
     console.log(`App running on port ${port}`);
 });

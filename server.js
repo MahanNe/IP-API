@@ -9,31 +9,31 @@ app.set('trust proxy', true);
 app.use(cors());
 
 app.get('/app', (req, res) => {
+    // Get the IP address of the client
     const ipString = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
     const ipType = ipString.includes(':') ? 'IPv6' : 'IPv4';
     const isBehindProxy = req.headers['x-forwarded-for'] ? true : false;
 
-    const userAgent = useragent.parse(req.headers['user-agent']);
+    // Parse user agent string
+    const userAgentString = req.headers['user-agent'];
+    const userAgent = useragent.parse(userAgentString);
 
-    let device;
-    if (userAgent.isDesktop) {
-        device = 'Desktop';
-    } else if (userAgent.isMobile) {
-        device = 'Mobile';
-    } else if (userAgent.isTablet) {
-        device = 'Tablet';
-    } else {
-        device = 'Other';
-    }
+    // Determine the browser information
+    const browser = userAgent.family || 'Unknown';
 
+    // Check if the client is likely using a VPN
+    const isUsingVPN = isBehindProxy && !userAgent.device.toString().toLowerCase().includes('vpn');
+
+    // Construct response object
     const responseObject = {
         ipString: ipString,
         ipType: ipType,
-        device: device,
+        browser: browser,
         isBehindProxy: isBehindProxy,
-        browser: userAgent.family,
+        isUsingVPN: isUsingVPN
     };
 
+    // Send the response
     res.json(responseObject);
 });
 

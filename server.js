@@ -9,7 +9,7 @@ app.set('trust proxy', true);
 app.use(cors());
 
 // Define a route for serving JSON data at the root URL
-app.get('/', (req, res) => {
+app.get('/proxy/ip-lookup', (req, res) => {
     // Get the IP address of the client
     const ipString = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : req.ip;
     const ipType = ipString.includes(':') ? 'IPv6' : 'IPv4';
